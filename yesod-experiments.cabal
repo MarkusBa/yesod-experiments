@@ -19,6 +19,17 @@ executable yesod-experiments
   main-is:             Main.hs
   -- other-modules:       
   -- other-extensions:    
-  build-depends:       base >=4.7 && <4.8
+  build-depends:     
+                 base >=4.7 && <4.8,
+                 yesod >=1.4.1.4,
+                 persistent >=2.1.1.7,
+                 persistent-sqlite >=2.1.1.2,
+                 persistent-postgresql >=2.1.2.2,
+                 persistent-template >=2.1.0.1,
+                 transformers >=0.3.0.0,
+                 resourcet >=1.1.4.1,
+                 monad-logger >=0.3.13.1
   -- hs-source-dirs:      
   default-language:    Haskell2010
+
+

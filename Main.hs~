@@ -16,7 +16,7 @@ import Control.Monad.IO.Class  (liftIO)
 import Control.Monad.Trans.Resource (runResourceT)
 import Control.Monad.Logger (runStderrLoggingT)
 
-share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase |
 Quad
   subject String Maybe
   predicate String Maybe
@@ -47,19 +47,20 @@ getHomeR = do
   quads <- runDB $ selectList [] []
   defaultLayout
     [whamlet|
-        <ul>
-            $forall Entity quadid quad <- quads
-                <li>
-                    <a href=@{QuadR quadid}>#{quadSubject quad}
+       <ul>
+           $forall Entity quadid quad <- quads
+                 <li>
+                      <a href=@{QuadR quadid}>#{quadSubject quad}
     |]
 
 getQuadR :: QuadId -> Handler String
-getQuadR quadId = do
+getQuaR quadId = do
   quad <- runDB $ get404 quadId
   return $ show quad
   
 main :: IO ()
-main = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool -> liftIO $ do
+main = runStderrLoggingT $ withPostgresPool connStr 10 $ \pool ->
+liftIO $ do
   runResourceT $ flip runSqlPersistMPool pool $ do
     runMigration migrateAll
     insert $ Quad "John" "Predicate" "Object"
