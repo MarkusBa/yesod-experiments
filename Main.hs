@@ -46,15 +46,11 @@ instance YesodPersist PgRest where
     PgRest pool <- getYesod
     runSqlPool action pool
 
-instance ToJSON Maybe Quad where
-  toJSON Just quad = object
+instance ToJSON Quad where
+  toJSON quad = object
        [ "subject" .= quadSubject $ quad,
          "predicate" .= quadPredicate $ quad,
          "object" .= quadObject $ quad]
-  toJSON Nothing = object
-       [ "subject" .= "",
-         "predicate" .= "",
-         "object" .= ""]
 
 getHomeR :: Handler Html
 getHomeR = do
@@ -72,23 +68,19 @@ getQuadR quadId = do
   quad <- runDB $ get404 quadId
   return $ show quad
 
+extractQuad monadMonster = do
+  quad <- monadMonster
+  return quad
+
 getQuadRestR :: QuadId -> Handler TypedContent
 getQuadRestR quadId = selectRep $ do
-  provideRep $ return $ object
-    [ "subject" .= subject
-      , "predicate" .= predicate
-      , "object" .= object]
+  provideRep $ returnJson quad
   where
-      maybeQuad = runDB $ get quadId
-      subject = case maybeQuad of
-        Just quad -> quadSubject quad
-        _   -> ""
-      predicate = case maybeQuad of
-        Just quad -> quadPredicate quad
-        _   -> ""
-      object = case maybeQuad of
-        Just quad -> quadPredicate quad
-        _   -> ""
+      monadMonster = runDB $ get quadId
+      maybeQuad = extractQuad monadMonster
+      quad = case maybeQuad of
+        Just qquad -> qquad
+        Nothing -> Quad "" "" ""
 
 main :: IO ()
 main = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool -> liftIO $ do
