@@ -18,6 +18,8 @@ import Control.Monad.IO.Class  (liftIO)
 import Control.Monad.Trans.Resource (runResourceT)
 import Control.Monad.Logger (runStderrLoggingT)
 
+-- cabal run
+-- http://localhost:3000/quadrest/1
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Quad
@@ -62,8 +64,8 @@ getQuadR quadId = do
   quad <- runDB $ get404 quadId
   return $ show quad
 
-getQuadRestR :: QuadId -> Handler TypedContent
-getQuadRestR quadId = selectRep $ do
+getQuadRestR :: QuadId -> Handler Value
+getQuadRestR quadId = do
   maybeQuad <- runDB $ get quadId
   return $ object
     [ "subject" .= case maybeQuad of
