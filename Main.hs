@@ -64,19 +64,20 @@ getQuadR quadId = do
   quad <- runDB $ get404 quadId
   return $ show quad
 
-getQuadRestR :: QuadId -> Handler Value
-getQuadRestR quadId = do
-  maybeQuad <- runDB $ get quadId
-  return $ object
-    [ "subject" .= case maybeQuad of
-                       Just quad -> quadSubject quad
-                       _   -> ""
-      , "predicate" .= case maybeQuad of
-                       Just quad -> quadPredicate quad
-                       _   -> ""
-      , "object" .= case maybeQuad of
-                       Just quad -> quadPredicate quad
-                       _   -> ""]
+getQuadRestR :: QuadId -> Handler TypedContent
+getQuadRestR quadId = selectRep $ do
+  provideRep $ do
+     maybeQuad <- runDB $ get quadId
+     return $ object
+       [ "subject" .= case maybeQuad of
+                          Just quad -> quadSubject quad
+                          _   -> ""
+         , "predicate" .= case maybeQuad of
+                          Just quad -> quadPredicate quad
+                          _   -> ""
+         , "object" .= case maybeQuad of
+                          Just quad -> quadPredicate quad
+                          _   -> ""]
 
 main :: IO ()
 main = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool -> liftIO $ do
