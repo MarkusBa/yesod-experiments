@@ -18,9 +18,9 @@ import Control.Monad.Logger (runStderrLoggingT)
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Quad
-  subject String Maybe
-  predicate String Maybe
-  object String Maybe
+  subject String
+  predicate String
+  object String
   deriving Show
 |]
 
@@ -60,7 +60,7 @@ getQuadR quadId = do
   
 main :: IO ()
 main = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool -> liftIO $ do
-  runResourceT $ flip runSqlPersistMPool pool $ do
+  flip runSqlPersistMPool pool $ do
     runMigration migrateAll
     insert $ Quad "John" "Predicate" "Object"
   warp 3000 $ PgRest pool  
