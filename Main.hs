@@ -5,6 +5,7 @@
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE ViewPatterns               #-}
@@ -45,6 +46,16 @@ instance YesodPersist PgRest where
     PgRest pool <- getYesod
     runSqlPool action pool
 
+instance ToJSON Maybe Quad where
+  toJSON Just quad = object
+       [ "subject" .= quadSubject $ quad,
+         "predicate" .= quadPredicate $ quad,
+         "object" .= quadObject $ quad]
+  toJSON Nothing = object
+       [ "subject" .= "",
+         "predicate" .= "",
+         "object" .= ""]
+
 getHomeR :: Handler Html
 getHomeR = do
   quads <- runDB $ selectList [] []
@@ -68,16 +79,16 @@ getQuadRestR quadId = selectRep $ do
       , "predicate" .= predicate
       , "object" .= object]
   where
-    maybeQuad = runDB $ get quadId
-    subject = case maybeQuad of
-      Just quad -> quadSubject quad
-      Nothing   -> ""
-    predicate = case maybeQuad of
-      Just quad -> quadPredicate quad
-      Nothing   -> ""
-    object = case maybeQuad of
-      Just quad -> quadPredicate quad
-      Nothing   -> ""
+      maybeQuad = runDB $ get quadId
+      subject = case maybeQuad of
+        Just quad -> quadSubject quad
+        _   -> ""
+      predicate = case maybeQuad of
+        Just quad -> quadPredicate quad
+        _   -> ""
+      object = case maybeQuad of
+        Just quad -> quadPredicate quad
+        _   -> ""
 
 main :: IO ()
 main = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool -> liftIO $ do
