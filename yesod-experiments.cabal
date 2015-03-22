@@ -22,6 +22,7 @@ executable yesod-experiments
   build-depends:     
                  base >=4.7 && <4.8,
                  yesod >=1.4.1.4,
+                 text >=1.2.0.4,
                  persistent >=2.1.1.7,
                  persistent-sqlite >=2.1.1.2,
                  persistent-postgresql >=2.1.2.2,
