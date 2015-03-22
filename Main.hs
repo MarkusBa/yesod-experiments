@@ -18,8 +18,10 @@ import Control.Monad.IO.Class  (liftIO)
 import Control.Monad.Trans.Resource (runResourceT)
 import Control.Monad.Logger (runStderrLoggingT)
 
+
 -- cabal run
 -- http://localhost:3000/quadrest/1
+
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Quad
@@ -37,9 +39,11 @@ mkYesod "PgRest" [parseRoutes|
 / HomeR GET
 /quad/#QuadId QuadR GET
 /quadrest/#QuadId QuadRestR GET
+/Main.js MainJsR GET
+/index.html IndexR GET
 |]
 
-instance Yesod PgRest
+instance Yesod PgRest 
 
 instance YesodPersist PgRest where
   type YesodPersistBackend PgRest = SqlBackend
@@ -47,6 +51,14 @@ instance YesodPersist PgRest where
   runDB action = do
     PgRest pool <- getYesod
     runSqlPool action pool
+    
+ -- type sig necessary, since sendFile is polymorphic
+getMainJsR :: Handler ()
+getMainJsR = sendFile "text/javascript" "Main.js"
+
+getIndexR :: Handler ()
+getIndexR = sendFile "text/html" "index.html"
+
 
 getHomeR :: Handler Html
 getHomeR = do
@@ -84,4 +96,4 @@ main = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool -> liftIO $ do
   flip runSqlPersistMPool pool $ do
     runMigration migrateAll
     insert $ Quad "John" "Predicate" "Object"
-  warp 3000 $ PgRest pool  
+  warp 3000 $ PgRest pool
