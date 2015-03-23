@@ -88,7 +88,7 @@ getQuadRestR quadId = selectRep $ do
                           Just quad -> quadPredicate quad
                           _   -> ""
          , "object" .= case maybeQuad of
-                          Just quad -> quadPredicate quad
+                          Just quad -> quadObject quad
                           _   -> ""]
 
 main :: IO ()
